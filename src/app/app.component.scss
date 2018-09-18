@@ -1,0 +1,61 @@
+.chart-legend .ng-tns-c2-0 .ng-star-inserted {
+  grid-area: leg;
+}
+
+.ngx-charts {
+  display: inline-block; 
+  width: 169px;
+  overflow: visible;
+  grid-area: cir;
+}
+
+.p-right {
+    .ngx-charts-outer.ng-trigger.ng-trigger-animationState {
+      position: relative;
+      width: 700px;
+      display: grid;
+      grid-template-areas: "cir leg";
+      grid-template-columns: 182px 1fr;
+    }
+}
+
+.p-bottom {
+  .ngx-charts-outer.ng-trigger.ng-trigger-animationState {
+    position: relative;
+    width: 700px;
+    display: grid;
+    grid-template-areas: "cir" "leg";
+  }
+
+  .chart-legend.ng-tns-c2-0.ng-star-inserted {
+    margin-left: 51px;
+  }
+
+  .ngx-charts {
+    height: 180px;
+  }
+}
+
+.p-top {
+  .ngx-charts-outer.ng-trigger.ng-trigger-animationState {
+    position: relative;
+    width: 700px;
+    display: grid;
+    grid-template-areas: "leg" "cir";
+  }
+
+  .chart-legend.ng-tns-c2-0.ng-star-inserted {
+    margin-left: 51px;
+  }
+}
+
+.p-left {
+  .ngx-charts-outer.ng-trigger.ng-trigger-animationState {
+    position: relative;
+    width: 700px;
+    display: grid;
+    grid-template-areas: "leg cir";
+    grid-template-columns: 86px 1fr;
+  }
+}
+

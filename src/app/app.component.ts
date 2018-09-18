@@ -9,19 +9,12 @@ import { formatLabel } from '@swimlane/ngx-charts/release/common/label.helper';
 import {
   single,
   multi,
-  bubble,
   generateData,
-  generateGraph,
-  treemap,
   timelineFilterBarData,
   fiscalYearReport
 } from './data';
 import { data as countries } from 'emoji-flags';
 import chartGroups from './chartTypes';
-
-
-const monthName = new Intl.DateTimeFormat('en-us', { month: 'short' });
-const weekdayName = new Intl.DateTimeFormat('en-us', { weekday: 'short' });
 
 function multiFormat(value) {
   if (value < 1000) return `${value.toFixed(2)}ms`;
@@ -37,10 +30,15 @@ function multiFormat(value) {
   selector: 'app-root',
   providers: [Location, { provide: LocationStrategy, useClass: HashLocationStrategy }],
   encapsulation: ViewEncapsulation.None,
-  styleUrls: ['../../node_modules/@swimlane/ngx-ui/release/index.css', './app.component.css'],
+  styleUrls: ['../../node_modules/@swimlane/ngx-ui/release/index.css', './app.component.scss'],
   templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
+
+  legend_left: boolean = false;
+  legend_top: boolean = false;
+  legend_right: boolean = true;
+  legend_bottom: boolean = false;
 
   theme = 'dark';
   chartType: string;
@@ -56,8 +54,6 @@ export class AppComponent implements OnInit {
   statusData: any[];
   sparklineData: any[];
   timelineFilterBarData: any[];
-  graph: { links: any[]; nodes: any[] };
-  bubble: any;
   linearScale: boolean = false;
   range: boolean = false;
 
@@ -139,14 +135,6 @@ export class AppComponent implements OnInit {
   
   rangeFillOpacity: number = 0.15;
 
-  // Override colors for certain values
-  // customColors: any[] = [
-  //   {
-  //     name: 'Germany',
-  //     value: '#0000ff'
-  //   }
-  // ];
-
   // pie
   showLabels = true;
   explodeSlices = false;
@@ -164,23 +152,6 @@ export class AppComponent implements OnInit {
   marginBottom: number = 40;
   marginLeft: number = 40;
 
-  // gauge
-  gaugeMin: number = 0;
-  gaugeMax: number = 100;
-  gaugeLargeSegments: number = 10;
-  gaugeSmallSegments: number = 5;
-  gaugeTextValue: string = '';
-  gaugeUnits: string = 'alerts';
-  gaugeAngleSpan: number = 240;
-  gaugeStartAngle: number = -120;
-  gaugeShowAxis: boolean = true;
-  gaugeValue: number = 50; // linear gauge value
-  gaugePreviousValue: number = 70;
-
-  // heatmap
-  heatmapMin: number = 0;
-  heatmapMax: number = 50000;
-
   // demos
   totalSales = 0;
   salePrice = 100;
@@ -189,8 +160,6 @@ export class AppComponent implements OnInit {
   mathText = '3 - 1.5*sin(x) + cos(2*x) - 1.5*abs(cos(x))';
   mathFunction: (o: any) => any;
 
-  treemap: any[];
-  treemapPath: any[] = [];
   sumBy: string = 'Size';
 
   // Reference lines
@@ -209,14 +178,9 @@ export class AppComponent implements OnInit {
       countries,
       chartGroups,
       colorSets,
-      graph: generateGraph(50),
-      bubble,
       plotData: this.generatePlotData(),
-      treemap,
       fiscalYearReport
     });
-
-    this.treemapProcess();
 
     this.dateData = generateData(5, false);
     this.dateDataWithRange = generateData(2, true);
@@ -238,127 +202,11 @@ export class AppComponent implements OnInit {
     const state = this.location.path(true);
     this.selectChart(state.length ? state : 'libgauge');
 
-    setInterval(this.updateData.bind(this), 1000);
+    // setInterval(this.updateData.bind(this), 1000);
 
     if (!this.fitContainer) {
       this.applyDimensions();
     }
-  }
-
-  updateData() {
-    if (!this.realTimeData) {
-      return;
-    }
-
-    this.gaugeValue = this.gaugeMin + Math.floor(Math.random() * (this.gaugeMax - this.gaugeMin));
-
-    const country = this.countries[Math.floor(Math.random() * this.countries.length)];
-    const add = Math.random() < 0.7;
-    const remove = Math.random() < 0.5;
-
-    if (remove) {
-      if (this.single.length > 1) {
-        const index = Math.floor(Math.random() * this.single.length);
-        this.single.splice(index, 1);
-        this.single = [...this.single];
-      }
-
-      if (this.multi.length > 1) {
-        const index = Math.floor(Math.random() * this.multi.length);
-        this.multi.splice(index, 1);
-        this.multi = [...this.multi];
-      }
-
-      if (this.bubble.length > 1) {
-        const index = Math.floor(Math.random() * this.bubble.length);
-        this.bubble.splice(index, 1);
-        this.bubble = [...this.bubble];
-      }
-
-      if (this.graph.nodes.length > 1) {
-        const index = Math.floor(Math.random() * this.graph.nodes.length);
-        const value = this.graph.nodes[index].value;
-        this.graph.nodes.splice(index, 1);
-        const nodes = [...this.graph.nodes];
-
-        const links = this.graph.links.filter(link => {
-          return (
-            link.source !== value && link.source.value !== value && link.target !== value && link.target.value !== value
-          );
-        });
-        this.graph = { links, nodes };
-      }
-    }
-
-    if (add) {
-      // single
-      const entry = {
-        name: country.name,
-        value: Math.floor(10000 + Math.random() * 50000)
-      };
-      this.single = [...this.single, entry];
-
-      // multi
-      const multiEntry = {
-        name: country.name,
-        series: [
-          {
-            name: '1990',
-            value: Math.floor(10000 + Math.random() * 50000)
-          },
-          {
-            name: '2000',
-            value: Math.floor(10000 + Math.random() * 50000)
-          },
-          {
-            name: '2010',
-            value: Math.floor(10000 + Math.random() * 50000)
-          }
-        ]
-      };
-
-      this.multi = [...this.multi, multiEntry];
-
-      // graph
-      const node = { value: country.name };
-      const nodes = [...this.graph.nodes, node];
-      const link = {
-        source: country.name,
-        target: nodes[Math.floor(Math.random() * (nodes.length - 1))].value
-      };
-      const links = [...this.graph.links, link];
-      this.graph = { links, nodes };
-
-      // bubble
-      const bubbleYear = Math.floor((2010 - 1990) * Math.random() + 1990);
-      const bubbleEntry = {
-        name: country.name,
-        series: [
-          {
-            name: '' + bubbleYear,
-            x: new Date(bubbleYear, 0, 1),
-            y: Math.floor(30 + Math.random() * 70),
-            r: Math.floor(30 + Math.random() * 20)
-          }
-        ]
-      };
-
-      this.bubble = [...this.bubble, bubbleEntry];
-
-      this.statusData = this.getStatusData();
-    }
-
-    const date = new Date(Math.floor(1473700105009 + Math.random() * 1000000000));
-    for (const series of this.dateData) {
-      series.series.push({
-        name: date,
-        value: Math.floor(2000 + Math.random() * 5000)
-      });
-    }
-    this.dateData = [...this.dateData];
-
-    this.dateDataWithRange = generateData(2, true);
-
   }
 
   applyDimensions() {
@@ -413,23 +261,6 @@ export class AppComponent implements OnInit {
 
   onLegendLabelClick(entry) {
     console.log('Legend clicked', entry);
-  }
-
-  calendarAxisTickFormatting(mondayString: string) {
-    const monday = new Date(mondayString);
-    const month = monday.getMonth();
-    const day = monday.getDate();
-    const year = monday.getFullYear();
-    const lastSunday = new Date(year, month, day - 1);
-    const nextSunday = new Date(year, month, day + 6);
-    return lastSunday.getMonth() !== nextSunday.getMonth() ? monthName.format(nextSunday) : '';
-  }
-
-  calendarTooltipText(c): string {
-    return `
-      <span class="tooltip-label">${c.label} • ${c.cell.date.toLocaleDateString()}</span>
-      <span class="tooltip-val">${c.data.toLocaleString()}</span>
-    `;
   }
 
   pieTooltipText({ data }) {
@@ -546,37 +377,6 @@ export class AppComponent implements OnInit {
     }
   }
 
-  treemapProcess(sumBy = this.sumBy) {
-    this.sumBy = sumBy;
-    const children = treemap[0];
-    const value = sumBy === 'Size' ? sumChildren(children) : countChildren(children);
-    this.treemap = [children];
-    this.treemapPath = [{ name: 'Top', children: [children], value }];
-
-    function sumChildren(node) {
-      return (node.value = node.size || d3.sum(node.children, sumChildren));
-    }
-
-    function countChildren(node) {
-      return (node.value = node.children ? d3.sum(node.children, countChildren) : 1);
-    }
-  }
-
-  treemapSelect(item) {
-    let node;
-    if (item.children) {
-      const idx = this.treemapPath.indexOf(item);
-      this.treemapPath.splice(idx + 1);
-      this.treemap = this.treemapPath[idx].children;
-      return;
-    }
-    node = this.treemap.find(d => d.name === item.name);
-    if (node.children) {
-      this.treemapPath.push(node);
-      this.treemap = node.children;
-    }
-  }
-
   getFlag(country) {
     return this.countries.find(c => c.name === country).emoji;
   }
@@ -623,6 +423,44 @@ export class AppComponent implements OnInit {
 
   dblclick(event) {
     console.log('Doube click', event);
+  }
+
+  positions = 'right top left bottom'.split(' ');
+  onLegendChange(position) {
+    
+    switch(position) { 
+      case "left": { 
+         this.legend_left = true;
+         this.legend_bottom = false;
+         this.legend_right = false;
+         this.legend_top = false;
+         break; 
+      } 
+      case "top": { 
+         this.legend_top = true;
+         this.legend_bottom = false;
+         this.legend_left = false;
+         this.legend_right = false;
+         break; 
+      } 
+      case "right": { 
+        this.legend_right = true;
+        this.legend_top = false;
+        this.legend_bottom = false;
+        this.legend_left = false;
+        break; 
+      } 
+      case "bottom": { 
+        this.legend_bottom = true;
+        this.legend_right = false;
+        this.legend_top = false;
+        this.legend_left = false;
+        break; 
+      }
+      default: { 
+         break; 
+      } 
+    } 
   }
 }
 

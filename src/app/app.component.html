@@ -1,8 +1,12 @@
 <main [class]="theme">
   <div class="chart-col">
     <div style="position: absolute; top: 50px; left: 650px; right: 50px; bottom: 50px;">
+      <select (change)="onLegendChange($event.target.value)">
+        <option *ngFor="let i of positions">{{i}}</option>
+      </select>
+      
       <app-gauge
-        class="chart-container"
+        [ngClass]="{'p-right': legend_right, 'p-top': legend_top, 'p-left': legend_left, 'p-bottom': legend_bottom}"
         [view]="view"
         [scheme]="colorScheme"
         [results]="single"

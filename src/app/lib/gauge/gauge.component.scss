@@ -1,24 +1,9 @@
 
 app-gauge {
-
-    .ngx-charts {
-      display: inline-block; 
-      width: 169px;
-      overflow: visible;
-    }
-
+    
     .chart-legend .legend-label:hover {
       color: #fff !important;
     }
-
-    .ngx-charts-outer.ng-trigger.ng-trigger-animationState {
-      position: relative;
-      width: 700px;
-      display: flex;
-      flex-wrap: wrap;
-      flex-direction: row;
-      flex-flow: row;
-     }
   
     background: #1b1e27;
     margin-top: 300px;
